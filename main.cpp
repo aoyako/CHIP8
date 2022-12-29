@@ -4,7 +4,8 @@
 #include "src/device.hpp"
 
 int main(int argc, char* argv[]) {
-  Device device;
+  Device device("example");
+  device.run();
   return 0;
 
   SDL_Window* window = nullptr;

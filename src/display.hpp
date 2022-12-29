@@ -7,7 +7,7 @@
 class Display {
  public:
   Display(int width, int height, const std::string& title);
-  // void draw() const;
+  void draw() const;
 
  private:
   SDL_Window* window = nullptr;

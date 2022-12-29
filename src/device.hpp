@@ -5,7 +5,8 @@
 
 class Device {
  public:
-  // void run();
+  Device(const std::string &filename);
+  void run();
 
  private:
   Display display;

@@ -2,10 +2,12 @@
 
 #include <algorithm>
 
-Processor::Processor(std::vector<uint8_t> program_data) {
+Processor::Processor() {
   this->initialize_memory();
   this->initialize_font();
+}
 
+void Processor::load_program(std::vector<uint8_t> program_data) {
   for (int i = 0; i < std::min(program_data.size(),
                                std::size_t(Processor::MEMORY_SIZE -
                                            Processor::PROGRAM_DATA_START));
