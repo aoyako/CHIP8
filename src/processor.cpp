@@ -153,8 +153,8 @@ auto Processor::run(Keyboard key) -> Code {
     for (int i = 0; i < n; ++i) {
       auto sprite_byte = this->memory[this->index_register + i / 8];
       auto pixel = sprite_byte & (0x1 << (i % 8));
-      auto xpos = (x + (i % 8)) % Processor::SCREEN_WIDTH;
-      auto ypos = (y + (i / 8)) % Processor::SCREEN_HEIGHT;
+      auto xpos = (x + (i % 8)) % SCREEN_WIDTH;
+      auto ypos = (y + (i / 8)) % SCREEN_HEIGHT;
 
       if (pixel && this->frame_buffer[ypos * SCREEN_WIDTH + xpos]) {
         this->registers[Processor::REGISTER::VF] = 1;
@@ -248,4 +248,18 @@ void Processor::clean_display() {
   }
 }
 
+#include <iostream>
 void Processor::initialize_font() {}
+
+auto Processor::get_frame_buffer() -> frame_buff {
+  this->clean_display();
+
+  auto p1 = rand() % (SCREEN_HEIGHT * SCREEN_WIDTH);
+  auto p2 = rand() % (SCREEN_HEIGHT * SCREEN_WIDTH);
+  auto p3 = rand() % (SCREEN_HEIGHT * SCREEN_WIDTH);
+  this->frame_buffer[p1] = 1;
+  this->frame_buffer[p2] = 1;
+  this->frame_buffer[p3] = 1;
+
+  return this->frame_buffer;
+}

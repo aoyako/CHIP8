@@ -4,6 +4,11 @@
 #include <cstdint>
 #include <vector>
 
+constexpr static int16_t SCREEN_WIDTH = 64;
+constexpr static int16_t SCREEN_HEIGHT = 32;
+
+using frame_buff = std::array<uint8_t, SCREEN_WIDTH * SCREEN_HEIGHT>;
+
 enum class Code {
   NONE,
   DRW,
@@ -35,12 +40,11 @@ class Processor {
   auto run(Keyboard key) -> Code;
   void load_program(std::vector<uint8_t> program_data);
 
-  const static int16_t SCREEN_WIDTH = 32;
-  const static int16_t SCREEN_HEIGHT = 64;
+  auto get_frame_buffer() -> frame_buff;
 
  private:
-  const static int16_t MEMORY_SIZE = 4096;
-  const static int16_t PROGRAM_DATA_START = 0x200;
+  constexpr static int16_t MEMORY_SIZE = 4096;
+  constexpr static int16_t PROGRAM_DATA_START = 0x200;
 
   enum REGISTER {
     V0 = 0x0,

@@ -2,12 +2,18 @@
 
 #include <SDL2/SDL.h>
 
+#include <array>
 #include <string>
+
+#include "processor.hpp"
+
+constexpr static int SCALE = 10;
 
 class Display {
  public:
   Display(int width, int height, const std::string& title);
-  void draw() const;
+  ~Display();
+  void draw(frame_buff buffer) const;
 
  private:
   SDL_Window* window = nullptr;
