@@ -4,7 +4,7 @@
 #include "src/device.hpp"
 
 int main(int argc, char* argv[]) {
-  Device device("example");
+  Device device("roms/invaders.ch8");
   device.run();
   return 0;
 
