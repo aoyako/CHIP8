@@ -89,46 +89,59 @@ auto Processor::run(Keyboard key) -> Code {
   } else if ((command & 0xF00F) == 0x8004) {  // 8xy4
     auto x = (command & 0x0F00) >> 8;
     auto y = (command & 0x00F0) >> 4;
-    this->registers[Processor::REGISTER::VF] = 0;
-    if (this->registers[x] + this->registers[y] < this->registers[x]) {
-      this->registers[Processor::REGISTER::VF] = 1;
-    }
+
+    auto last_vx_val = this->registers[x];
     this->registers[x] += this->registers[y];
+    if (this->registers[x] < last_vx_val) {
+      this->registers[Processor::REGISTER::VF] = 1;
+    } else {
+      this->registers[Processor::REGISTER::VF] = 0;
+    }
     this->program_counter += 2;
   } else if ((command & 0xF00F) == 0x8005) {  // 8xy5
     auto x = (command & 0x0F00) >> 8;
     auto y = (command & 0x00F0) >> 4;
-    this->registers[Processor::VF] = 0;
-    if (this->registers[x] - this->registers[y] > this->registers[x]) {
-      this->registers[Processor::VF] = 1;
-    }
+
+    auto last_vx_val = this->registers[x];
     this->registers[x] -= this->registers[y];
+    if (last_vx_val < this->registers[y]) {
+      this->registers[Processor::REGISTER::VF] = 0;
+    } else {
+      this->registers[Processor::REGISTER::VF] = 1;
+    }
     this->program_counter += 2;
   } else if ((command & 0xF00F) == 0x8006) {  // 8xy6
     auto x = (command & 0x0F00) >> 8;
     auto y = (command & 0x00F0) >> 4;
-    this->registers[Processor::VF] = this->registers[x] & 0x1;
+
+    auto last_vx_val = this->registers[x];
     this->registers[x] >>= 1;
+    this->registers[Processor::VF] = last_vx_val & 0x1;
     this->program_counter += 2;
   } else if ((command & 0xF00F) == 0x8007) {  // 8xy7
     auto x = (command & 0x0F00) >> 8;
     auto y = (command & 0x00F0) >> 4;
-    this->registers[Processor::REGISTER::VF] = 0;
-    if (this->registers[y] - this->registers[x] > this->registers[y]) {
-      this->registers[Processor::REGISTER::VF] = 1;
-    }
+
+    auto last_vx_val = this->registers[x];
     this->registers[x] = this->registers[y] - this->registers[x];
+    if (this->registers[y] > last_vx_val) {
+      this->registers[Processor::REGISTER::VF] = 1;
+    } else {
+      this->registers[Processor::REGISTER::VF] = 0;
+    }
     this->program_counter += 2;
   } else if ((command & 0xF00F) == 0x800E) {  // 8xyE
     auto x = (command & 0x0F00) >> 8;
     auto y = (command & 0x00F0) >> 4;
-    this->registers[Processor::REGISTER::VF] = this->registers[x] & 0x80;
+
+    auto last_vx_val = this->registers[x];
     this->registers[x] <<= 1;
+    this->registers[Processor::REGISTER::VF] = (last_vx_val & 0x80) >> 7;
     this->program_counter += 2;
   } else if ((command & 0xF00F) == 0x9000) {  // 9xy0
     auto x = (command & 0x0F00) >> 8;
     auto y = (command & 0x00F0) >> 4;
-    if (this->registers[x] == this->registers[y]) {
+    if (this->registers[x] != this->registers[y]) {
       this->program_counter += 2;
     }
     this->program_counter += 2;

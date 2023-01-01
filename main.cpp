@@ -4,7 +4,7 @@
 #include "src/device.hpp"
 
 int main(int argc, char* argv[]) {
-  Device device("roms/octojam.ch8");
+  Device device("roms/test.ch8");
   device.run();
   return 0;
 }
