@@ -42,6 +42,9 @@ class Processor {
 
   auto get_frame_buffer() -> frame_buff;
 
+  void update_delay_timer();
+  void update_sound_timer();
+
  private:
   constexpr static int16_t MEMORY_SIZE = 4096;
   constexpr static int16_t PROGRAM_DATA_START = 0x200;
@@ -58,7 +61,7 @@ class Processor {
   uint8_t sound_timer = 0;
 
   std::array<uint8_t, 16> registers;
-  std::array<uint8_t, 8> stack;
+  std::array<uint16_t, 8> stack;
   std::array<uint8_t, SCREEN_WIDTH * SCREEN_HEIGHT> frame_buffer;
   std::array<uint8_t, MEMORY_SIZE> memory;
 

@@ -20,7 +20,7 @@ void Processor::load_program(std::vector<uint8_t> program_data) {
 auto Processor::run(Keyboard key) -> Code {
   auto command = (uint16_t(this->memory[this->program_counter] << 8)) +
                  (uint16_t(this->memory[this->program_counter + 1]));
-  std::cout << std::hex << std::showbase << int(command) << std::endl;
+  // std::cout << std::hex << std::showbase << int(command) << std::endl;
 
   if (command == 0x00E0) {  // 00E0
     this->clean_display();
@@ -32,7 +32,7 @@ auto Processor::run(Keyboard key) -> Code {
     this->registers[x] += kk;
     this->program_counter += 2;
   } else if (command == 0x00EE) {  // 00EE
-    this->program_counter = this->stack[this->stack_pointer];
+    this->program_counter = this->stack[this->stack_pointer] + 2;
     this->stack_pointer--;
   } else if ((command & 0xF000) == 0x1000) {  // 1nnn
     this->program_counter = command & 0x0FFF;
@@ -156,7 +156,7 @@ auto Processor::run(Keyboard key) -> Code {
     this->registers[Processor::REGISTER::VF] = 0;
     for (int i = 0; i < n; ++i) {
       auto sprite_byte = this->memory[this->index_register + i];
-      std::cout << "putting sprite: " << int(sprite_byte) << std::endl;
+      // std::cout << "putting sprite: " << int(sprite_byte) << std::endl;
       for (int b = 0; b < 8; ++b) {
         auto pixel = ((sprite_byte << b) & 0x80) >> 7;
         auto xpos = (x + b) % SCREEN_WIDTH;
@@ -170,14 +170,16 @@ auto Processor::run(Keyboard key) -> Code {
     }
     // this->index_register += n;
     this->program_counter += 2;
-    return Code::DRW;
-  } else if ((command & 0xF09E) == 0xE09E) {  // Ex9E
+    // return Code::DRW;
+  } else if ((command & 0xF0FF) == 0xE09E) {  // Ex9E
     auto x = (command & 0x0F00) >> 8;
+    std::cout << static_cast<uint16_t>(key) << " : "
+              << int16_t(this->registers[x]) << std::endl;
     if (static_cast<uint16_t>(key) == uint16_t(this->registers[x])) {
       this->program_counter += 2;
     }
     this->program_counter += 2;
-  } else if ((command & 0xF09E) == 0xE0A1) {  // ExA1
+  } else if ((command & 0xF0FF) == 0xE0A1) {  // ExA1
     auto x = (command & 0x0F00) >> 8;
     if (static_cast<uint16_t>(key) != uint16_t(this->registers[x])) {
       this->program_counter += 2;
@@ -218,14 +220,14 @@ auto Processor::run(Keyboard key) -> Code {
     this->program_counter += 2;
   } else if ((command & 0xF0FF) == 0xF055) {  // Fx55
     auto x = (command & 0x0F00) >> 8;
-    for (int i = 0; i < x; ++i) {
+    for (int i = 0; i <= x; ++i) {
       this->memory[this->index_register + i] = this->registers[i];
     }
     this->index_register += x + 1;
     this->program_counter += 2;
   } else if ((command & 0xF0FF) == 0xF065) {  // Fx65
     auto x = (command & 0x0F00) >> 8;
-    for (int i = 0; i < x; ++i) {
+    for (int i = 0; i <= x; ++i) {
       this->registers[i] = this->memory[this->index_register + i];
     }
     this->index_register += x + 1;
@@ -264,3 +266,15 @@ void Processor::clean_display() {
 void Processor::initialize_font() {}
 
 auto Processor::get_frame_buffer() -> frame_buff { return this->frame_buffer; }
+
+void Processor::update_delay_timer() {
+  if (this->delay_timer != 0) {
+    this->delay_timer--;
+  }
+}
+
+void Processor::update_sound_timer() {
+  if (this->sound_timer != 0) {
+    this->sound_timer--;
+  }
+}
