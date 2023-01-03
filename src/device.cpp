@@ -1,5 +1,6 @@
 #include "device.hpp"
 
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <iterator>
@@ -28,6 +29,13 @@ Device::Device(const std::string& filename)
 
 void Device::run() {
   this->display.draw(this->processor.get_frame_buffer());
+  const auto key_labels = std::array<SDL_Scancode, 16>{
+      SDL_SCANCODE_1, SDL_SCANCODE_2, SDL_SCANCODE_3, SDL_SCANCODE_4,
+      SDL_SCANCODE_Q, SDL_SCANCODE_W, SDL_SCANCODE_E, SDL_SCANCODE_R,
+      SDL_SCANCODE_A, SDL_SCANCODE_S, SDL_SCANCODE_D, SDL_SCANCODE_F,
+      SDL_SCANCODE_Z, SDL_SCANCODE_X, SDL_SCANCODE_C, SDL_SCANCODE_V,
+  };
+
   int tick = 0;
   int close = 0;
   while (!close) {
@@ -41,45 +49,39 @@ void Device::run() {
     }
 
     const Uint8* state = SDL_GetKeyboardState(nullptr);
-    auto key = Keyboard::NONE;
+    auto keys = std::array<bool, 16>{};
 
-    if (state[SDL_SCANCODE_1]) {
-      key = Keyboard::K0;
-    } else if (state[SDL_SCANCODE_2]) {
-      key = Keyboard::K1;
-    } else if (state[SDL_SCANCODE_3]) {
-      key = Keyboard::K2;
-    } else if (state[SDL_SCANCODE_4]) {
-      key = Keyboard::K3;
-    } else if (state[SDL_SCANCODE_Q]) {
-      key = Keyboard::K4;
-    } else if (state[SDL_SCANCODE_W]) {
-      key = Keyboard::K5;
-    } else if (state[SDL_SCANCODE_E]) {
-      key = Keyboard::K6;
-    } else if (state[SDL_SCANCODE_R]) {
-      key = Keyboard::K7;
-    } else if (state[SDL_SCANCODE_A]) {
-      key = Keyboard::K8;
-    } else if (state[SDL_SCANCODE_S]) {
-      key = Keyboard::K9;
-    } else if (state[SDL_SCANCODE_D]) {
-      key = Keyboard::KA;
-    } else if (state[SDL_SCANCODE_F]) {
-      key = Keyboard::KB;
-    } else if (state[SDL_SCANCODE_Z]) {
-      key = Keyboard::KC;
-    } else if (state[SDL_SCANCODE_X]) {
-      key = Keyboard::KD;
-    } else if (state[SDL_SCANCODE_C]) {
-      key = Keyboard::KE;
-    } else if (state[SDL_SCANCODE_V]) {
-      key = Keyboard::KF;
+    for (int i = 0; i < key_labels.size(); ++i) {
+      keys[i] = false;
+      if (state[key_labels[i]]) {
+        keys[i] = true;
+      }
     }
 
-    // std::cout << static_cast<int>(key) << std::endl;
+    // for (auto key : keys) {
+    //   std::cout << key << " ";
+    // }
+    // std::cout << std::endl;
 
-    auto code = this->processor.run(key);
+    // for (auto key : keys) {
+    //   std::cout << static_cast<int>(key) << " ";
+    // }
+    // std::cout << std::endl;
+
+    // if (this->processor.halted_key() != Keyboard::NONE) {
+    //   std::cout << "Halted with "
+    //             << static_cast<int>(this->processor.halted_key()) <<
+    //             std::endl;
+    //   if (std::find(keys.begin(), keys.end(), this->processor.halted_key())
+    //   ==
+    //       keys.end()) {
+    //     this->processor.release_key();
+    //     std::cout << "Unhalted" << std::endl;
+    //   } else {
+    //     continue;
+    //   }
+    // }
+    auto code = this->processor.run(keys);
 
     if (code == Code::DRW) {
       this->display.draw(this->processor.get_frame_buffer());

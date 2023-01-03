@@ -37,7 +37,7 @@ enum class Keyboard {
 class Processor {
  public:
   Processor();
-  auto run(Keyboard key) -> Code;
+  auto run(std::array<bool, 16> keys) -> Code;
   void load_program(std::vector<uint8_t> program_data);
 
   auto get_frame_buffer() -> frame_buff;
@@ -47,6 +47,8 @@ class Processor {
 
   auto should_draw() -> bool;
   void clean_frames();
+  auto halted_key() -> Keyboard;
+  void release_key();
 
  private:
   constexpr static int16_t MEMORY_SIZE = 4096;
@@ -62,6 +64,7 @@ class Processor {
   uint16_t program_counter = 0;
   uint8_t delay_timer = 0;
   uint8_t sound_timer = 0;
+  Keyboard blocked_key = Keyboard::NONE;
 
   bool frames_updated = false;
 

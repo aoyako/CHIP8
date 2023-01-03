@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <numeric>
 
 Processor::Processor() {
   this->initialize_memory();
@@ -17,7 +18,12 @@ void Processor::load_program(std::vector<uint8_t> program_data) {
   }
 }
 
-auto Processor::run(Keyboard key) -> Code {
+auto Processor::run(std::array<bool, 16> keys) -> Code {
+  // if (this->halted_key() != Keyboard::NONE) {
+  //   std::cout << "fucked" << std::endl;
+  //   return Code::NONE;
+  // }
+
   auto command = (uint16_t(this->memory[this->program_counter] << 8)) +
                  (uint16_t(this->memory[this->program_counter + 1]));
   // std::cout << std::hex << std::showbase << int(command) << std::endl;
@@ -194,16 +200,18 @@ auto Processor::run(Keyboard key) -> Code {
     // return Code::DRW;
   } else if ((command & 0xF0FF) == 0xE09E) {  // Ex9E
     auto x = (command & 0x0F00) >> 8;
-    // std::cout << static_cast<uint16_t>(key) << " : "
-    // << int16_t(this->registers[x]) << std::endl;
-    if (static_cast<uint16_t>(key) == uint16_t(this->registers[x])) {
-      this->program_counter += 2;
+    if (!(this->registers[x] >= keys.size())) {
+      if (keys[this->registers[x]]) {
+        this->program_counter += 2;
+      }
     }
     this->program_counter += 2;
   } else if ((command & 0xF0FF) == 0xE0A1) {  // ExA1
     auto x = (command & 0x0F00) >> 8;
-    if (static_cast<uint16_t>(key) != uint16_t(this->registers[x])) {
-      this->program_counter += 2;
+    if (!(this->registers[x] >= keys.size())) {
+      if (!keys[this->registers[x]]) {
+        this->program_counter += 2;
+      }
     }
     this->program_counter += 2;
   } else if ((command & 0xF0FF) == 0xF007) {  // Fx07
@@ -212,8 +220,10 @@ auto Processor::run(Keyboard key) -> Code {
     this->program_counter += 2;
   } else if ((command & 0xF0FF) == 0xF00A) {  // Fx0A
     auto x = (command & 0x0F00) >> 8;
-    if (key != Keyboard::NONE) {
-      this->registers[x] = static_cast<uint8_t>(key);
+    if (std::reduce(keys.begin(), keys.end(), false,
+                    [](const auto &x, const auto &y) { return x || y; })) {
+      // this->blocked_key = keys[0];
+      this->registers[x] = static_cast<uint8_t>(this->blocked_key);
       this->program_counter += 2;
     }
   } else if ((command & 0xF0FF) == 0xF015) {  // Fx15
@@ -303,3 +313,7 @@ void Processor::update_sound_timer() {
 auto Processor::should_draw() -> bool { return this->frames_updated; }
 
 void Processor::clean_frames() { this->frames_updated = false; }
+
+auto Processor::halted_key() -> Keyboard { return this->blocked_key; }
+
+void Processor::release_key() { this->blocked_key = Keyboard::NONE; }
