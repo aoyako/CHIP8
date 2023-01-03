@@ -47,7 +47,7 @@ class Processor {
 
   auto should_draw() -> bool;
   void clean_frames();
-  auto halted_key() -> Keyboard;
+  auto halted_key() -> int;
   void release_key();
 
  private:
@@ -64,7 +64,7 @@ class Processor {
   uint16_t program_counter = 0;
   uint8_t delay_timer = 0;
   uint8_t sound_timer = 0;
-  Keyboard blocked_key = Keyboard::NONE;
+  int blocked_key = -1;
 
   bool frames_updated = false;
 

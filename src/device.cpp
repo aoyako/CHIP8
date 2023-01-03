@@ -68,19 +68,16 @@ void Device::run() {
     // }
     // std::cout << std::endl;
 
-    // if (this->processor.halted_key() != Keyboard::NONE) {
-    //   std::cout << "Halted with "
-    //             << static_cast<int>(this->processor.halted_key()) <<
-    //             std::endl;
-    //   if (std::find(keys.begin(), keys.end(), this->processor.halted_key())
-    //   ==
-    //       keys.end()) {
-    //     this->processor.release_key();
-    //     std::cout << "Unhalted" << std::endl;
-    //   } else {
-    //     continue;
-    //   }
-    // }
+    if (this->processor.halted_key() != -1) {
+      std::cout << "Halted with " << this->processor.halted_key() << std::endl;
+      if (std::find(keys.begin(), keys.end(), this->processor.halted_key()) ==
+          keys.end()) {
+        this->processor.release_key();
+        std::cout << "Unhalted" << std::endl;
+      } else {
+        continue;
+      }
+    }
     auto code = this->processor.run(keys);
 
     if (code == Code::DRW) {

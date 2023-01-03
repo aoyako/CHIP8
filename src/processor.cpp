@@ -19,10 +19,10 @@ void Processor::load_program(std::vector<uint8_t> program_data) {
 }
 
 auto Processor::run(std::array<bool, 16> keys) -> Code {
-  // if (this->halted_key() != Keyboard::NONE) {
-  //   std::cout << "fucked" << std::endl;
-  //   return Code::NONE;
-  // }
+  if (this->halted_key() != -1) {
+    std::cout << "fucked" << std::endl;
+    return Code::NONE;
+  }
 
   auto command = (uint16_t(this->memory[this->program_counter] << 8)) +
                  (uint16_t(this->memory[this->program_counter + 1]));
@@ -314,6 +314,6 @@ auto Processor::should_draw() -> bool { return this->frames_updated; }
 
 void Processor::clean_frames() { this->frames_updated = false; }
 
-auto Processor::halted_key() -> Keyboard { return this->blocked_key; }
+auto Processor::halted_key() -> int { return this->blocked_key; }
 
-void Processor::release_key() { this->blocked_key = Keyboard::NONE; }
+void Processor::release_key() { this->blocked_key = -1; }
