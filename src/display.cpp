@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-Display::Display(int width, int height, const std::string &title) {
+Display::Display(int width, int height, const std::string& title) {
   if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
     throw std::runtime_error("SDL init error: " + std::string(SDL_GetError()));
   }
@@ -39,4 +39,17 @@ void Display::draw(frame_buff buffer) const {
 Display::~Display() {
   SDL_DestroyWindow(this->window);
   SDL_Quit();
+}
+
+Audio::Audio(const std::string& filename) {
+  SDL_LoadWAV("res/sample.wav", &this->spec, &this->buffer, &this->length);
+}
+
+Audio::~Audio() { SDL_FreeWAV(this->buffer); }
+
+void Audio::play() const {
+  auto device_id = SDL_OpenAudioDevice(NULL, 0, &this->spec, NULL, 0);
+  SDL_QueueAudio(device_id, this->buffer, this->length);
+  SDL_PauseAudioDevice(device_id, 0);
+  SDL_CloseAudioDevice(device_id);
 }

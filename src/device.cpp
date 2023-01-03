@@ -5,7 +5,7 @@
 #include <iterator>
 
 Device::Device(const std::string& filename)
-    : display(SCREEN_WIDTH, SCREEN_HEIGHT, "chip8") {
+    : display(SCREEN_WIDTH, SCREEN_HEIGHT, "chip8"), audio("res/sample.wav") {
   std::ifstream input(filename, std::ios::binary);
   if (input.is_open()) {
     input.seekg(0, std::ios::end);
@@ -85,9 +85,13 @@ void Device::run() {
       this->display.draw(this->processor.get_frame_buffer());
     }
 
-    if (tick == 60) {
+    if (tick == 10) {
       tick = 0;
-      this->display.draw(this->processor.get_frame_buffer());
+
+      if (this->processor.should_draw()) {
+        this->display.draw(this->processor.get_frame_buffer());
+      }
+
       this->processor.update_delay_timer();
       this->processor.update_sound_timer();
     }

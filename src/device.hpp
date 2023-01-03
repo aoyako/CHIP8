@@ -11,4 +11,5 @@ class Device {
  private:
   Display display;
   Processor processor;
+  Audio audio;
 };

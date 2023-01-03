@@ -75,16 +75,19 @@ auto Processor::run(Keyboard key) -> Code {
     auto x = (command & 0x0F00) >> 8;
     auto y = (command & 0x00F0) >> 4;
     this->registers[x] |= this->registers[y];
+    this->registers[Processor::REGISTER::VF] = 0;
     this->program_counter += 2;
   } else if ((command & 0xF00F) == 0x8002) {  // 8xy2
     auto x = (command & 0x0F00) >> 8;
     auto y = (command & 0x00F0) >> 4;
     this->registers[x] &= this->registers[y];
+    this->registers[Processor::REGISTER::VF] = 0;
     this->program_counter += 2;
   } else if ((command & 0xF00F) == 0x8003) {  // 8xy3
     auto x = (command & 0x0F00) >> 8;
     auto y = (command & 0x00F0) >> 4;
     this->registers[x] ^= this->registers[y];
+    this->registers[Processor::REGISTER::VF] = 0;
     this->program_counter += 2;
   } else if ((command & 0xF00F) == 0x8004) {  // 8xy4
     auto x = (command & 0x0F00) >> 8;
@@ -114,6 +117,7 @@ auto Processor::run(Keyboard key) -> Code {
     auto x = (command & 0x0F00) >> 8;
     auto y = (command & 0x00F0) >> 4;
 
+    this->registers[x] = this->registers[y];
     auto last_vx_val = this->registers[x];
     this->registers[x] >>= 1;
     this->registers[Processor::VF] = last_vx_val & 0x1;
@@ -134,6 +138,7 @@ auto Processor::run(Keyboard key) -> Code {
     auto x = (command & 0x0F00) >> 8;
     auto y = (command & 0x00F0) >> 4;
 
+    this->registers[x] = this->registers[y];
     auto last_vx_val = this->registers[x];
     this->registers[x] <<= 1;
     this->registers[Processor::REGISTER::VF] = (last_vx_val & 0x80) >> 7;
@@ -150,30 +155,33 @@ auto Processor::run(Keyboard key) -> Code {
     this->index_register = nnn;
     this->program_counter += 2;
   } else if ((command & 0xF000) == 0xB000) {  // Bnnn
+    auto x = (command & 0x0F00) >> 8;
     auto nnn = command & 0x0FFF;
-    this->index_register =
+    this->program_counter =
         uint16_t(this->registers[Processor::REGISTER::V0]) + nnn;
-    this->program_counter += 2;
   } else if ((command & 0xF000) == 0xC000) {  // Cxkk
     auto x = (command & 0x0F00) >> 8;
     auto kk = command & 0x00FF;
     this->registers[x] = rand() & kk;
     this->program_counter += 2;
   } else if ((command & 0xF000) == 0xD000) {  // Dxyn
+    this->frames_updated = true;
     auto xx = (command & 0x0F00) >> 8;
     auto yy = (command & 0x00F0) >> 4;
     auto n = command & 0x000F;
-    auto x = this->registers[xx];
-    auto y = this->registers[yy];
+    auto x = this->registers[xx] & 0x3F;
+    auto y = this->registers[yy] & 0x1F;
 
     this->registers[Processor::REGISTER::VF] = 0;
     for (int i = 0; i < n; ++i) {
       auto sprite_byte = this->memory[this->index_register + i];
-      // std::cout << "putting sprite: " << int(sprite_byte) << std::endl;
       for (int b = 0; b < 8; ++b) {
         auto pixel = ((sprite_byte << b) & 0x80) >> 7;
-        auto xpos = (x + b) % SCREEN_WIDTH;
-        auto ypos = (y + i) % SCREEN_HEIGHT;
+        auto xpos = (x + b);
+        auto ypos = (y + i);
+        if ((xpos >= SCREEN_WIDTH) || (ypos >= SCREEN_HEIGHT)) {
+          continue;
+        }
 
         if (pixel && this->frame_buffer[ypos * SCREEN_WIDTH + xpos]) {
           this->registers[Processor::REGISTER::VF] = 1;
@@ -186,8 +194,8 @@ auto Processor::run(Keyboard key) -> Code {
     // return Code::DRW;
   } else if ((command & 0xF0FF) == 0xE09E) {  // Ex9E
     auto x = (command & 0x0F00) >> 8;
-    std::cout << static_cast<uint16_t>(key) << " : "
-              << int16_t(this->registers[x]) << std::endl;
+    // std::cout << static_cast<uint16_t>(key) << " : "
+    // << int16_t(this->registers[x]) << std::endl;
     if (static_cast<uint16_t>(key) == uint16_t(this->registers[x])) {
       this->program_counter += 2;
     }
@@ -291,3 +299,7 @@ void Processor::update_sound_timer() {
     this->sound_timer--;
   }
 }
+
+auto Processor::should_draw() -> bool { return this->frames_updated; }
+
+void Processor::clean_frames() { this->frames_updated = false; }

@@ -19,3 +19,15 @@ class Display {
   SDL_Window* window = nullptr;
   SDL_Renderer* renderer = nullptr;
 };
+
+class Audio {
+ public:
+  Audio(const std::string& filename);
+  ~Audio();
+  void play() const;
+
+ private:
+  SDL_AudioSpec spec;
+  uint32_t length;
+  uint8_t* buffer = nullptr;
+};

@@ -45,6 +45,9 @@ class Processor {
   void update_delay_timer();
   void update_sound_timer();
 
+  auto should_draw() -> bool;
+  void clean_frames();
+
  private:
   constexpr static int16_t MEMORY_SIZE = 4096;
   constexpr static int16_t PROGRAM_DATA_START = 0x200;
@@ -59,6 +62,8 @@ class Processor {
   uint16_t program_counter = 0;
   uint8_t delay_timer = 0;
   uint8_t sound_timer = 0;
+
+  bool frames_updated = false;
 
   std::array<uint8_t, 16> registers;
   std::array<uint16_t, 8> stack;
