@@ -220,9 +220,10 @@ auto Processor::run(std::array<bool, 16> keys) -> Code {
     this->program_counter += 2;
   } else if ((command & 0xF0FF) == 0xF00A) {  // Fx0A
     auto x = (command & 0x0F00) >> 8;
-    if (std::reduce(keys.begin(), keys.end(), false,
-                    [](const auto &x, const auto &y) { return x || y; })) {
-      // this->blocked_key = keys[0];
+    auto key =
+        std::distance(keys.begin(), std::find(keys.begin(), keys.end(), true));
+    if (key != keys.size()) {
+      this->blocked_key = key;
       this->registers[x] = static_cast<uint8_t>(this->blocked_key);
       this->program_counter += 2;
     }

@@ -69,11 +69,8 @@ void Device::run() {
     // std::cout << std::endl;
 
     if (this->processor.halted_key() != -1) {
-      std::cout << "Halted with " << this->processor.halted_key() << std::endl;
-      if (std::find(keys.begin(), keys.end(), this->processor.halted_key()) ==
-          keys.end()) {
+      if (!keys[this->processor.halted_key()]) {
         this->processor.release_key();
-        std::cout << "Unhalted" << std::endl;
       } else {
         continue;
       }
