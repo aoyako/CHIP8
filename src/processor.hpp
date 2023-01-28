@@ -41,6 +41,7 @@ class Processor {
   void load_program(std::vector<uint8_t> program_data);
 
   auto get_frame_buffer() -> frame_buff;
+  auto get_sound_timer() -> uint8_t;
 
   void update_delay_timer();
   void update_sound_timer();

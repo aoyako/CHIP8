@@ -88,6 +88,10 @@ void Device::run() {
         this->display.draw(this->processor.get_frame_buffer());
       }
 
+      if (this->processor.get_sound_timer()) {
+        this->audio.play();
+      }
+
       this->processor.update_delay_timer();
       this->processor.update_sound_timer();
     }

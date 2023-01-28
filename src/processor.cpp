@@ -20,13 +20,12 @@ void Processor::load_program(std::vector<uint8_t> program_data) {
 
 auto Processor::run(std::array<bool, 16> keys) -> Code {
   if (this->halted_key() != -1) {
-    std::cout << "fucked" << std::endl;
     return Code::NONE;
   }
 
   auto command = (uint16_t(this->memory[this->program_counter] << 8)) +
                  (uint16_t(this->memory[this->program_counter + 1]));
-  // std::cout << std::hex << std::showbase << int(command) << std::endl;
+  std::cout << std::hex << std::showbase << int(command) << std::endl;
 
   if (command == 0x00E0) {  // 00E0
     this->clean_display();
@@ -49,6 +48,9 @@ auto Processor::run(std::array<bool, 16> keys) -> Code {
   } else if ((command & 0xF000) == 0x3000) {  // 3xkk
     auto x = (command & 0x0F00) >> 8;
     auto kk = command & 0x00FF;
+    if (x == 0xF) {
+      std::cout << "" << std::endl;
+    }
     if (this->registers[x] == kk) {
       this->program_counter += 2;
     }
@@ -56,6 +58,9 @@ auto Processor::run(std::array<bool, 16> keys) -> Code {
   } else if ((command & 0xF000) == 0x4000) {  // 4xkk
     auto x = (command & 0x0F00) >> 8;
     auto kk = command & 0x00FF;
+    if (x == 0xF) {
+      std::cout << "" << std::endl;
+    }
     if (this->registers[x] != kk) {
       this->program_counter += 2;
     }
@@ -63,6 +68,9 @@ auto Processor::run(std::array<bool, 16> keys) -> Code {
   } else if ((command & 0xF00F) == 0x5000) {  // 5xy0
     auto x = (command & 0x0F00) >> 8;
     auto y = (command & 0x00F0) >> 4;
+    if (x == 0xF || y == 0xF) {
+      std::cout << "" << std::endl;
+    }
     if (this->registers[x] == this->registers[y]) {
       this->program_counter += 2;
     }
@@ -121,9 +129,9 @@ auto Processor::run(std::array<bool, 16> keys) -> Code {
     this->program_counter += 2;
   } else if ((command & 0xF00F) == 0x8006) {  // 8xy6
     auto x = (command & 0x0F00) >> 8;
-    auto y = (command & 0x00F0) >> 4;
 
-    this->registers[x] = this->registers[y];
+    // WTF WTF WTF
+    // this->registers[x] = this->registers[y];
     auto last_vx_val = this->registers[x];
     this->registers[x] >>= 1;
     this->registers[Processor::VF] = last_vx_val & 0x1;
@@ -142,9 +150,7 @@ auto Processor::run(std::array<bool, 16> keys) -> Code {
     this->program_counter += 2;
   } else if ((command & 0xF00F) == 0x800E) {  // 8xyE
     auto x = (command & 0x0F00) >> 8;
-    auto y = (command & 0x00F0) >> 4;
 
-    this->registers[x] = this->registers[y];
     auto last_vx_val = this->registers[x];
     this->registers[x] <<= 1;
     this->registers[Processor::REGISTER::VF] = (last_vx_val & 0x80) >> 7;
@@ -152,6 +158,9 @@ auto Processor::run(std::array<bool, 16> keys) -> Code {
   } else if ((command & 0xF00F) == 0x9000) {  // 9xy0
     auto x = (command & 0x0F00) >> 8;
     auto y = (command & 0x00F0) >> 4;
+    if (x == 0xF || y == 0xF) {
+      std::cout << "" << std::endl;
+    }
     if (this->registers[x] != this->registers[y]) {
       this->program_counter += 2;
     }
@@ -197,7 +206,6 @@ auto Processor::run(std::array<bool, 16> keys) -> Code {
     }
     // this->index_register += n;
     this->program_counter += 2;
-    // return Code::DRW;
   } else if ((command & 0xF0FF) == 0xE09E) {  // Ex9E
     auto x = (command & 0x0F00) >> 8;
     if (!(this->registers[x] >= keys.size())) {
@@ -267,6 +275,7 @@ auto Processor::run(std::array<bool, 16> keys) -> Code {
   } else {
     this->program_counter += 2;
     std::cerr << "unknow command" << std::endl;
+    throw "hehe";
   }
 
   return Code::NONE;
@@ -300,6 +309,7 @@ void Processor::initialize_font() {}
 auto Processor::get_frame_buffer() -> frame_buff { return this->frame_buffer; }
 
 void Processor::update_delay_timer() {
+  std::cout << "updated " << int(this->delay_timer) << std::endl;
   if (this->delay_timer != 0) {
     this->delay_timer--;
   }
@@ -310,6 +320,8 @@ void Processor::update_sound_timer() {
     this->sound_timer--;
   }
 }
+
+auto Processor::get_sound_timer() -> uint8_t { return this->sound_timer; }
 
 auto Processor::should_draw() -> bool { return this->frames_updated; }
 

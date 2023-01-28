@@ -49,7 +49,7 @@ Audio::~Audio() { SDL_FreeWAV(this->buffer); }
 
 void Audio::play() const {
   auto device_id = SDL_OpenAudioDevice(NULL, 0, &this->spec, NULL, 0);
-  SDL_QueueAudio(device_id, this->buffer, this->length);
-  SDL_PauseAudioDevice(device_id, 0);
-  SDL_CloseAudioDevice(device_id);
+  // SDL_QueueAudio(device_id, this->buffer, this->length);
+  // SDL_PauseAudioDevice(device_id, 0);
+  // SDL_CloseAudioDevice(device_id);
 }
