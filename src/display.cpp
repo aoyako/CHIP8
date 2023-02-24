@@ -2,8 +2,8 @@
 
 #include <stdexcept>
 
-constexpr int DEFAULT_AUDIO_RATE = 44100;
-constexpr int DEFAULT_AUDIO_BUFF_SIZE = 2048;
+constexpr static int DEFAULT_AUDIO_RATE = 44100;
+constexpr static int DEFAULT_AUDIO_BUFF_SIZE = 2048;
 
 Display::Display(int width, int height, const std::string& title) {
   if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {

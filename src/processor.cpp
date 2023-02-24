@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <iostream>
-#include <numeric>
 
 Processor::Processor() {
   this->initialize_memory();
@@ -48,9 +47,6 @@ auto Processor::run(std::array<bool, 16> keys) -> Code {
   } else if ((command & 0xF000) == 0x3000) {  // 3xkk
     auto x = (command & 0x0F00) >> 8;
     auto kk = command & 0x00FF;
-    if (x == 0xF) {
-      // std::cout << "" << std::endl;
-    }
     if (this->registers[x] == kk) {
       this->program_counter += 2;
     }
@@ -58,9 +54,6 @@ auto Processor::run(std::array<bool, 16> keys) -> Code {
   } else if ((command & 0xF000) == 0x4000) {  // 4xkk
     auto x = (command & 0x0F00) >> 8;
     auto kk = command & 0x00FF;
-    if (x == 0xF) {
-      // std::cout << "" << std::endl;
-    }
     if (this->registers[x] != kk) {
       this->program_counter += 2;
     }
@@ -68,9 +61,6 @@ auto Processor::run(std::array<bool, 16> keys) -> Code {
   } else if ((command & 0xF00F) == 0x5000) {  // 5xy0
     auto x = (command & 0x0F00) >> 8;
     auto y = (command & 0x00F0) >> 4;
-    if (x == 0xF || y == 0xF) {
-      // std::cout << "" << std::endl;
-    }
     if (this->registers[x] == this->registers[y]) {
       this->program_counter += 2;
     }
@@ -158,9 +148,6 @@ auto Processor::run(std::array<bool, 16> keys) -> Code {
   } else if ((command & 0xF00F) == 0x9000) {  // 9xy0
     auto x = (command & 0x0F00) >> 8;
     auto y = (command & 0x00F0) >> 4;
-    if (x == 0xF || y == 0xF) {
-      // std::cout << "" << std::endl;
-    }
     if (this->registers[x] != this->registers[y]) {
       this->program_counter += 2;
     }
@@ -204,6 +191,7 @@ auto Processor::run(std::array<bool, 16> keys) -> Code {
         this->frame_buffer[ypos * SCREEN_WIDTH + xpos] ^= pixel;
       }
     }
+    // Different implementations
     // this->index_register += n;
     this->program_counter += 2;
   } else if ((command & 0xF0FF) == 0xE09E) {  // Ex9E
@@ -253,7 +241,6 @@ auto Processor::run(std::array<bool, 16> keys) -> Code {
     this->program_counter += 2;
   } else if ((command & 0xF0FF) == 0xF033) {  // Fx33
     auto x = (command & 0x0F00) >> 8;
-    // ???
     this->memory[this->index_register] = this->registers[x] / 100;
     this->memory[this->index_register + 1] = (this->registers[x] / 10) % 10;
     this->memory[this->index_register + 2] = this->registers[x] % 10;
@@ -274,8 +261,8 @@ auto Processor::run(std::array<bool, 16> keys) -> Code {
     this->program_counter += 2;
   } else {
     this->program_counter += 2;
-    std::cerr << "unknow command" << std::endl;
-    throw "hehe";
+    std::cerr << "unknown command: " << std::hex << std::showbase
+              << int(command) << std::endl;
   }
 
   return Code::NONE;
@@ -303,13 +290,24 @@ void Processor::clean_display() {
   }
 }
 
-#include <iostream>
-void Processor::initialize_font() {}
+void Processor::initialize_font() {
+  std::vector<uint8_t> fonts = {
+      0xF0, 0x90, 0x90, 0x90, 0xF0, 0x20, 0x60, 0x20, 0x20, 0x70, 0xF0, 0x10,
+      0xF0, 0x80, 0xF0, 0xF0, 0x10, 0xF0, 0x10, 0xF0, 0x90, 0x90, 0xF0, 0x10,
+      0x10, 0xF0, 0x80, 0xF0, 0x10, 0xF0, 0xF0, 0x80, 0xF0, 0x90, 0xF0, 0xF0,
+      0x10, 0x20, 0x40, 0x40, 0xF0, 0x90, 0xF0, 0x90, 0xF0, 0xF0, 0x90, 0xF0,
+      0x10, 0xF0, 0xF0, 0x90, 0xF0, 0x90, 0x90, 0xE0, 0x90, 0xE0, 0x90, 0xE0,
+      0xF0, 0x80, 0x80, 0x80, 0xF0, 0xE0, 0x90, 0x90, 0x90, 0xE0, 0xF0, 0x80,
+      0xF0, 0x80, 0xF0, 0xF0, 0x80, 0xF0, 0x80, 0x80};
+
+  for (int ch_pos = 0; ch_pos < fonts.size(); ++ch_pos) {
+    this->memory[ch_pos] = fonts[ch_pos];
+  }
+}
 
 auto Processor::get_frame_buffer() -> frame_buff { return this->frame_buffer; }
 
 void Processor::update_delay_timer() {
-  // std::cout << "updated " << int(this->delay_timer) << std::endl;
   if (this->delay_timer != 0) {
     this->delay_timer--;
   }
