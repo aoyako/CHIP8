@@ -25,7 +25,7 @@ auto Processor::run(std::array<bool, 16> keys) -> Code {
 
   auto command = (uint16_t(this->memory[this->program_counter] << 8)) +
                  (uint16_t(this->memory[this->program_counter + 1]));
-  std::cout << std::hex << std::showbase << int(command) << std::endl;
+  // std::cout << std::hex << std::showbase << int(command) << std::endl;
 
   if (command == 0x00E0) {  // 00E0
     this->clean_display();
@@ -49,7 +49,7 @@ auto Processor::run(std::array<bool, 16> keys) -> Code {
     auto x = (command & 0x0F00) >> 8;
     auto kk = command & 0x00FF;
     if (x == 0xF) {
-      std::cout << "" << std::endl;
+      // std::cout << "" << std::endl;
     }
     if (this->registers[x] == kk) {
       this->program_counter += 2;
@@ -59,7 +59,7 @@ auto Processor::run(std::array<bool, 16> keys) -> Code {
     auto x = (command & 0x0F00) >> 8;
     auto kk = command & 0x00FF;
     if (x == 0xF) {
-      std::cout << "" << std::endl;
+      // std::cout << "" << std::endl;
     }
     if (this->registers[x] != kk) {
       this->program_counter += 2;
@@ -69,7 +69,7 @@ auto Processor::run(std::array<bool, 16> keys) -> Code {
     auto x = (command & 0x0F00) >> 8;
     auto y = (command & 0x00F0) >> 4;
     if (x == 0xF || y == 0xF) {
-      std::cout << "" << std::endl;
+      // std::cout << "" << std::endl;
     }
     if (this->registers[x] == this->registers[y]) {
       this->program_counter += 2;
@@ -159,7 +159,7 @@ auto Processor::run(std::array<bool, 16> keys) -> Code {
     auto x = (command & 0x0F00) >> 8;
     auto y = (command & 0x00F0) >> 4;
     if (x == 0xF || y == 0xF) {
-      std::cout << "" << std::endl;
+      // std::cout << "" << std::endl;
     }
     if (this->registers[x] != this->registers[y]) {
       this->program_counter += 2;
@@ -309,7 +309,7 @@ void Processor::initialize_font() {}
 auto Processor::get_frame_buffer() -> frame_buff { return this->frame_buffer; }
 
 void Processor::update_delay_timer() {
-  std::cout << "updated " << int(this->delay_timer) << std::endl;
+  // std::cout << "updated " << int(this->delay_timer) << std::endl;
   if (this->delay_timer != 0) {
     this->delay_timer--;
   }

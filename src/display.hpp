@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 
 #include <array>
 #include <string>
@@ -27,7 +28,5 @@ class Audio {
   void play() const;
 
  private:
-  SDL_AudioSpec spec;
-  uint32_t length;
-  uint8_t* buffer = nullptr;
+  Mix_Chunk* sound = nullptr;
 };
