@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <iostream>
 
+namespace Processor {
+
 Processor::Processor() {
   this->initialize_memory();
   this->initialize_font();
@@ -328,3 +330,5 @@ void Processor::clean_frames() { this->frames_updated = false; }
 auto Processor::halted_key() -> int { return this->blocked_key; }
 
 void Processor::release_key() { this->blocked_key = -1; }
+
+}  // namespace Processor

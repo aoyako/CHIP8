@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <vector>
 
+namespace Processor {
+
 constexpr static int16_t SCREEN_WIDTH = 64;
 constexpr static int16_t SCREEN_HEIGHT = 32;
 
@@ -78,3 +80,4 @@ class Processor {
   void initialize_font();
   void clean_display();
 };
+}  // namespace Processor

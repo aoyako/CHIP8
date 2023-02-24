@@ -1,7 +1,10 @@
 #pragma once
 
+#include "audio.hpp"
 #include "display.hpp"
 #include "processor.hpp"
+
+namespace Device {
 
 class Device {
  public:
@@ -9,7 +12,8 @@ class Device {
   void run();
 
  private:
-  Display display;
-  Processor processor;
-  Audio audio;
+  Display::Display display;
+  Processor::Processor processor;
+  Audio::Audio audio;
 };
+}  // namespace Device

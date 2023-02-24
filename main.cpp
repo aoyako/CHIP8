@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
     audio_path = std::string(argv[2]);
   }
 
-  Device device(argv[1], audio_path);
+  Device::Device device(argv[1], audio_path);
   device.run();
 
   return EXIT_SUCCESS;

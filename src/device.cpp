@@ -5,8 +5,13 @@
 #include <iostream>
 #include <iterator>
 
+namespace Device {
+
+constexpr static int TICKS_PER_ITER = 10;
+
 Device::Device(const std::string &rom_path, const std::string &audio_path)
-    : display(SCREEN_WIDTH, SCREEN_HEIGHT, "chip8"), audio(audio_path) {
+    : display(Processor::SCREEN_WIDTH, Processor::SCREEN_HEIGHT, "chip8"),
+      audio(audio_path) {
   std::ifstream input(rom_path, std::ios::binary);
   if (input.is_open()) {
     input.seekg(0, std::ios::end);
@@ -58,16 +63,6 @@ void Device::run() {
       }
     }
 
-    // for (auto key : keys) {
-    //   std::cout << key << " ";
-    // }
-    // std::cout << std::endl;
-
-    // for (auto key : keys) {
-    //   std::cout << static_cast<int>(key) << " ";
-    // }
-    // std::cout << std::endl;
-
     if (this->processor.halted_key() != -1) {
       if (!keys[this->processor.halted_key()]) {
         this->processor.release_key();
@@ -77,11 +72,11 @@ void Device::run() {
     }
     auto code = this->processor.run(keys);
 
-    if (code == Code::DRW) {
+    if (code == Processor::Code::DRW) {
       this->display.draw(this->processor.get_frame_buffer());
     }
 
-    if (tick == 10) {
+    if (tick == TICKS_PER_ITER) {
       tick = 0;
 
       if (this->processor.should_draw()) {
@@ -99,3 +94,4 @@ void Device::run() {
     SDL_Delay(1);
   }
 }
+}  // namespace Device
