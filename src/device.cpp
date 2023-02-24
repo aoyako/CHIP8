@@ -5,9 +5,9 @@
 #include <iostream>
 #include <iterator>
 
-Device::Device(const std::string& filename)
-    : display(SCREEN_WIDTH, SCREEN_HEIGHT, "chip8"), audio("res/sample.wav") {
-  std::ifstream input(filename, std::ios::binary);
+Device::Device(const std::string &rom_path, const std::string &audio_path)
+    : display(SCREEN_WIDTH, SCREEN_HEIGHT, "chip8"), audio(audio_path) {
+  std::ifstream input(rom_path, std::ios::binary);
   if (input.is_open()) {
     input.seekg(0, std::ios::end);
     std::streampos size = input.tellg();
@@ -23,7 +23,7 @@ Device::Device(const std::string& filename)
 
     input.close();
   } else {
-    throw std::runtime_error("Could not open file: " + filename);
+    throw std::runtime_error("Could not open file: " + rom_path);
   }
 }
 
@@ -48,7 +48,7 @@ void Device::run() {
       }
     }
 
-    const Uint8* state = SDL_GetKeyboardState(nullptr);
+    const Uint8 *state = SDL_GetKeyboardState(nullptr);
     auto keys = std::array<bool, 16>{};
 
     for (int i = 0; i < key_labels.size(); ++i) {

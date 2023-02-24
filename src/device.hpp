@@ -5,7 +5,7 @@
 
 class Device {
  public:
-  Device(const std::string &filename);
+  Device(const std::string &rom_path, const std::string &audio_path);
   void run();
 
  private:

@@ -2,8 +2,10 @@
 
 #include <stdexcept>
 
+constexpr int DEFAULT_AUDIO_RATE = 44100;
+constexpr int DEFAULT_AUDIO_BUFF_SIZE = 2048;
+
 Display::Display(int width, int height, const std::string& title) {
-  // putenv("SDL_AUDIODRIVER=alsa");
   if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
     throw std::runtime_error("SDL init error: " + std::string(SDL_GetError()));
   }
@@ -43,15 +45,12 @@ Display::~Display() {
 }
 
 Audio::Audio(const std::string& filename) {
-  // if (SDL_LoadWAV("res/beep.wav", &this->spec, &this->buffer, &this->length)
-  // ==
-  //     NULL) {
-  //   throw SDL_GetError();
-  // }
-  Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
-  this->sound = Mix_LoadWAV("res/beep.wav");
+  Mix_OpenAudio(DEFAULT_AUDIO_RATE, MIX_DEFAULT_FORMAT, 2,
+                DEFAULT_AUDIO_BUFF_SIZE);
+  this->sound = Mix_LoadWAV(filename.c_str());
   if (this->sound == NULL) {
-    throw Mix_GetError();
+    throw std::runtime_error("Mixer audio load error: " +
+                             std::string(Mix_GetError()));
   }
 }
 
@@ -61,21 +60,11 @@ Audio::~Audio() {
 }
 
 void Audio::play() const {
-  // Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
-
-  // Mix_Chunk* beep = Mix_LoadWAV("res/beep.wav");
-  // if (beep == NULL) {
-  //   printf("Failed to load audio file: %s\n", Mix_GetError());
-  // }
-
   if (!Mix_Playing(0)) {
     int channel = Mix_PlayChannel(-1, this->sound, 0);
     if (channel == -1) {
-      printf("Failed to play audio: %s\n", Mix_GetError());
+      throw std::runtime_error("Mixer play error: " +
+                               std::string(Mix_GetError()));
     }
   }
-
-  // Clean up and quit SDL2 and SDL_mixer
-  // Mix_FreeChunk(beep);
-  // Mix_CloseAudio();
 }
